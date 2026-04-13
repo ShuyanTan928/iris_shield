@@ -6,8 +6,8 @@
 
 | Feature | How it works |
 |---------|-------------|
-| **AI Caption Attack** | Forces AI captioning models (BLIP) to output "data redacted" instead of describing the actual image content |
-| **CLIP Embedding Attack** | Pushes the image's visual embedding away from its real content, breaking AI search and auto-tagging |
+| **AI Caption Attack** | When crawlers scrape your photos, they use AI captioning models to auto-label your images for training data. This attack forces those models to output "data redacted" instead of the real description, poisoning any dataset that includes your photos |
+| **CLIP Embedding Attack** | AI systems use CLIP embeddings to search, classify, and tag images. This attack corrupts the embedding so your photo cannot be found via reverse image search or correctly categorized by automated pipelines |
 | **License Plate Protection** | Detects plates with a dedicated YOLO model, reads text with OCR, replaces with random characters |
 | **Sign Blurring** | Detects street signs and applies gaussian blur |
 
@@ -16,7 +16,8 @@ All processing runs **locally on your machine**. No data is uploaded anywhere.
 ## Requirements
 
 - Python 3.10-3.12
-- NVIDIA GPU with CUDA (recommended, 6GB+ VRAM)
+- NVIDIA GPU with CUDA (optional, speeds up processing 10-20x)
+- CPU-only mode fully supported
 - [uv](https://docs.astral.sh/uv/) package manager
 
 ## Quick Start
