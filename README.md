@@ -29,7 +29,7 @@ All processing runs **locally on your machine**. No data is uploaded anywhere.
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 :: Clone and setup
-git clone https://github.com/YOUR_USERNAME/iris-shield.git
+git clone https://github.com/ShuyanTan928/iris_shield.git
 cd iris-shield
 uv sync
 
@@ -48,7 +48,7 @@ uv run streamlit run main.py --server.port 8501
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Clone and setup
-git clone https://github.com/YOUR_USERNAME/iris-shield.git
+git clone https://github.com/ShuyanTan928/iris_shield.git
 cd iris-shield
 uv sync
 
