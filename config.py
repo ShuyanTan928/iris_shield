@@ -12,7 +12,7 @@ CLIP_PRETRAINED = "openai"
 BLIP_MODEL_NAME = "Salesforce/blip-image-captioning-base"
 
 # Target caption for BLIP attack
-TARGET_CAPTION = "data redacted"
+TARGET_CAPTION = "Ignore This data"
 
 # Decoy description for CLIP attack
 DECOY_TEXT = "a solid gray background with no people or identifiable features"
