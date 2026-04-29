@@ -131,6 +131,40 @@ The system applies adversarial perturbations to the image using Adam optimizer:
 2. **Text replacement**: EasyOCR reads plate text, each character is replaced with a random one of the same type
 3. **Sign detection**: General YOLOv11 detects signs, applies gaussian blur
 
+
+
+## Open-Source Components Used
+
+| Component | Source | What it does in our project |
+|-----------|--------|---------------------------|
+| [OpenAI CLIP (ViT-B/32)](https://github.com/mlfoundations/open_clip) | `open-clip-torch` pip package | Pre-trained vision-language encoder. We use it as a white-box attack target — no modifications to the model itself |
+| [BLIP (blip-image-captioning-base)](https://huggingface.co/Salesforce/blip-image-captioning-base) | Salesforce via HuggingFace `transformers` | Pre-trained image captioning model. Used as a white-box attack target — no modifications to the model itself |
+| [YOLOv11n](https://github.com/ultralytics/ultralytics) | Ultralytics `ultralytics` pip package | General object detection (street signs). Used as-is for inference only |
+| [YOLOv11 License Plate](https://huggingface.co/morsetechlab/yolov11-license-plate-detection) | morsetechlab via HuggingFace | Fine-tuned plate detection model. Used as-is for inference only |
+| [EasyOCR](https://github.com/JaidedAI/EasyOCR) | `easyocr` pip package | Reads license plate text for character replacement. Used as-is |
+| [Streamlit](https://streamlit.io/) | `streamlit` pip package | Web UI framework. Used as-is |
+| [Plotly](https://plotly.com/) | `plotly` pip package | Chart rendering in the dashboard. Used as-is |
+
+## What We Built (Original Code)
+
+All files in `core/`, `ui/`, and `utils/` are **original implementations**. Specifically:
+
+### Novel attack pipeline (`core/`)
+- **`ensemble_cloaker.py`** — Joint CLIP + BLIP adversarial attack with auto-tuning epsilon. This is the core contribution: an Adam-optimized adversarial perturbation that simultaneously (1) misdirects CLIP embeddings away from the original image content toward a decoy description, and (2) hijacks BLIP caption generation via teacher-forced cross-entropy optimization to output a controlled target string. The auto-tuning loop starts with minimal perturbation and increases only when needed, preserving image quality.
+- **`clip_attack.py`** — White-box adversarial loss computation against CLIP: pushes image embeddings away from original content and toward a decoy text embedding. Includes zero-shot identity recognition testing.
+- **`blip_attack.py`** — Targeted caption attack using teacher forcing: minimizes cross-entropy loss between BLIP's output distribution and a target token sequence, forcing the model to generate a specific caption.
+- **`background_protector.py`** — Multi-model detection pipeline: uses a dedicated plate-detection YOLO model for license plates + general YOLO for signs, then applies OCR-based character replacement (reads each character, replaces with random same-type character) for plates and gaussian blur for signs.
+
+### User interface (`ui/`)
+- **`dashboard.py`** — Complete Streamlit web application with auto-tuning progress display, before/after comparison, AI caption test, CLIP identity recognition test, and background protection statistics.
+- **`styles.py`** — Custom CSS theming.
+
+### Key technical decisions
+- **Adam optimizer instead of PGD**: Standard PGD (sign gradient) converges poorly against L2-normalized embeddings. We use Adam with L-inf projection, which provides adaptive learning rates and momentum for much better convergence.
+- **Auto-tuning epsilon**: Instead of a fixed perturbation budget, the system starts at eps=2/255 and increases in steps of 2/255 only if the BLIP caption hasn't changed, capping at 6/255. This minimizes visual distortion.
+- **Dual-model ensemble attack**: Attacking CLIP and BLIP jointly is more robust than attacking either alone, because they use different architectures and the perturbation must generalize across both.
+- **Teacher forcing for caption control**: Rather than just disrupting BLIP features, we directly optimize the cross-entropy loss against target tokens, giving precise control over the generated caption.
+
 ## License
 
 MIT
